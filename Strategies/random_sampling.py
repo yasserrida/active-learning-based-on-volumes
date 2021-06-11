@@ -1,8 +1,8 @@
 import numpy as np
-from .strategy import Strategy
+from Helpers.strategie import Strategie
 
 
-class RandomSampling(Strategy):
+class RandomSampling(Strategie):
     def __init__(self, x_train, y_train, idxs_labeled, net, handler, args):
         super(RandomSampling, self).__init__(
             x_train, y_train, idxs_labeled, net, handler, args)

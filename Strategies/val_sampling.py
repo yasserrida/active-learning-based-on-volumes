@@ -55,18 +55,4 @@ class VAL:
                 out, e1 = self.clf(x)
                 pred = out.max(1)[1]
                 P[idxs] = pred.cpu()
-
         return P
-
-    def predict_prob(self, x_train, y_train):
-        loader_te = DataLoader(self.handler(
-            x_train, y_train, transform=self.args['transform']), shuffle=False, **self.args['loader_te_args'])
-        self.clf.eval()
-        probs = torch.zeros([len(y_train), len(np.unique(y_train))])
-        with torch.no_grad():
-            for x, y, idxs in loader_te:
-                x, y = x.to(self.device), y.to(self.device)
-                out, e1 = self.clf(x)
-                prob = F.softmax(out, dim=1)
-                probs[idxs] = prob.cpu()
-        return probs
