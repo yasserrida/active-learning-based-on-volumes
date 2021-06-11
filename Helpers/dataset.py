@@ -25,8 +25,10 @@ def get_MNIST():
 
 
 def get_FashionMNIST():
-    raw_tr = datasets.FashionMNIST('./Datasets/FashionMNIST', train=True, download=True)
-    raw_te = datasets.FashionMNIST('./Datasets/FashionMNIST', train=False, download=True)
+    raw_tr = datasets.FashionMNIST(
+        './Datasets/FashionMNIST', train=True, download=True)
+    raw_te = datasets.FashionMNIST(
+        './Datasets/FashionMNIST', train=False, download=True)
     X_tr = raw_tr.train_data
     Y_tr = raw_tr.train_labels
     X_te = raw_te.test_data

@@ -1,17 +1,14 @@
-from strategies import RandomSampling, LeastConfidence, MarginSampling, EntropySampling, KMeansSampling
-from dataset import get_dataset, get_handler
-from model import get_net
+from Strategies import RandomSampling, MarginSampling, KMeansSampling, VAL
+from Helpers.model import get_net
+from Helpers.dataset import get_dataset, get_handler
 from torchvision import transforms
 import numpy as np
-import torch
 import matplotlib.pyplot as plt
-torch.device("cuda:0")
-torch.cuda.set_device(0)
-
+import torch
 
 NB_INITIAL_ETIQUITE = 1000
-NB_QUERY = 1000
-NB_ITERATIONS = 20
+NB_QUERY = 500
+NB_ITERATIONS = 5
 DATASET = 'MNIST'
 ARGS_POOL = {'MNIST':
              {'n_epoch': 10, 'transform': transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))]),
@@ -43,10 +40,8 @@ def label_initial_data():
 def main_function(strategy, index_etiquite):
     # ========= Trainer le modéle
     strategy.train()
-
     # ========= Tester le modéle
     P = strategy.predict(x_test, y_test)
-
     # ========= Calculer la precision Initial
     presions = np.zeros(NB_ITERATIONS + 1)
     presions[0] = 1.0 * (y_test == P).sum().item() / len(y_test)
@@ -90,40 +85,30 @@ if __name__ == '__main__':
     print('\tNombre de pool de test: {}'.format(len(y_test)))
 
     # ========= RandomSampling
-    strategy = RandomSampling(
-        x_train, y_train, label_initial_data(), get_net(DATASET), get_handler(DATASET), ARGS_POOL[DATASET])
-    result.append(main_function(strategy, label_initial_data()))
-
-    # ========= LeastConfidence
-    strategy = LeastConfidence(
-        x_train, y_train, label_initial_data(), get_net(DATASET), get_handler(DATASET), ARGS_POOL[DATASET])
+    strategy = RandomSampling(x_train, y_train, label_initial_data(), get_net(
+        DATASET), get_handler(DATASET), ARGS_POOL[DATASET])
     result.append(main_function(strategy, label_initial_data()))
 
     # ========= MarginSampling
-    strategy = MarginSampling(
-        x_train, y_train, label_initial_data(), get_net(DATASET), get_handler(DATASET), ARGS_POOL[DATASET])
-    result.append(main_function(strategy, label_initial_data()))
-
-    # ========= EntropySampling
-    strategy = EntropySampling(
-        x_train, y_train, label_initial_data(), get_net(DATASET), get_handler(DATASET), ARGS_POOL[DATASET])
+    strategy = MarginSampling(x_train, y_train, label_initial_data(), get_net(
+        DATASET), get_handler(DATASET), ARGS_POOL[DATASET])
     result.append(main_function(strategy, label_initial_data()))
 
     # ========= KMeansSampling
-    strategy = KMeansSampling(
-        x_train, y_train, label_initial_data(), get_net(DATASET), get_handler(DATASET), ARGS_POOL[DATASET])
+    strategy = KMeansSampling(x_train, y_train, label_initial_data(), get_net(
+        DATASET), get_handler(DATASET), ARGS_POOL[DATASET])
     result.append(main_function(strategy, label_initial_data()))
 
-    labels = ['Échantillonnage aléatoire', 'Moins de confiance',
-              'Échantillonnage de marge', 'Échantillonnage d entropie', 'Échantillonnage K-means']
+    labels = ['Échantillonnage aléatoire', 'Échantillonnage de marge',
+              'Échantillonnage K-means', 'Échantillonnage VAL']
     colors = ['blue', 'red', 'green', 'pink', 'black', 'orange']
     for i in range(0, len(result)):
-        plt.plot(range(0, len(result[i])), result[i],
-                 color=colors[i], alpha=0.6, label=labels[i], linestyle='-', marker='o')
+        plt.plot(range(0, len(result[i])), result[i], color=colors[i],
+                 alpha=0.6, label=labels[i], linestyle='-', marker='o')
     plt.xlabel("Iterations")
     plt.ylabel('Précision')
-    plt.title('Comparaison entre les différents stratégies | ' +
-              str(NB_ITERATIONS) + ' itération | pool étiquité ' + str(NB_INITIAL_ETIQUITE) + ' | pool non étiquité ' + str(n_pool - NB_INITIAL_ETIQUITE))
+    plt.title('Comparaison entre les différents stratégies | ' + str(NB_ITERATIONS) + ' itération | pool étiquité ' +
+              str(NB_INITIAL_ETIQUITE) + ' | pool non étiquité ' + str(n_pool - NB_INITIAL_ETIQUITE))
     plt.grid()
     plt.legend()
     plt.show()
