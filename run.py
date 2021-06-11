@@ -1,5 +1,5 @@
 from Strategies import RandomSampling, MarginSampling, KMeansSampling, VAL
-from Helpers.model import get_net
+from Helpers.model import get_classifier
 from Helpers.dataset import get_dataset, get_handler
 from torchvision import transforms
 import numpy as np
@@ -30,14 +30,14 @@ ARGS_POOL = {'MNIST':
 
 def label_initial_data():
     # ========== générer un pool étiqueté initial
-    index_etiquite = np.zeros(n_pool, dtype=bool)
+    idxs_labeled = np.zeros(n_pool, dtype=bool)
     index_temp = np.arange(n_pool)
     np.random.shuffle(index_temp)
-    index_etiquite[index_temp[:NB_INITIAL_ETIQUITE]] = True
-    return index_etiquite
+    idxs_labeled[index_temp[:NB_INITIAL_ETIQUITE]] = True
+    return idxs_labeled
 
 
-def main_function(strategy, index_etiquite):
+def main_function(strategy, idxs_labeled):
     # ========= Trainer le modéle
     strategy.train()
     # ========= Tester le modéle
@@ -52,9 +52,9 @@ def main_function(strategy, index_etiquite):
     # ========= Repeter pour le nombre d'iteration
     for rd in range(1, NB_ITERATIONS + 1):
         q_idxs = strategy.query(NB_QUERY)
-        index_etiquite[q_idxs] = True
+        idxs_labeled[q_idxs] = True
         # ========= mise a jour la dataset
-        strategy.update(index_etiquite)
+        strategy.update(idxs_labeled)
         strategy.train()
         # ========= Calculer la precision
         P = strategy.predict(x_test, y_test)
@@ -85,17 +85,17 @@ if __name__ == '__main__':
     print('\tNombre de pool de test: {}'.format(len(y_test)))
 
     # ========= RandomSampling
-    strategy = RandomSampling(x_train, y_train, label_initial_data(), get_net(
+    strategy = RandomSampling(x_train, y_train, label_initial_data(), get_classifier(
         DATASET), get_handler(DATASET), ARGS_POOL[DATASET])
     result.append(main_function(strategy, label_initial_data()))
 
     # ========= MarginSampling
-    strategy = MarginSampling(x_train, y_train, label_initial_data(), get_net(
+    strategy = MarginSampling(x_train, y_train, label_initial_data(), get_classifier(
         DATASET), get_handler(DATASET), ARGS_POOL[DATASET])
     result.append(main_function(strategy, label_initial_data()))
 
     # ========= KMeansSampling
-    strategy = KMeansSampling(x_train, y_train, label_initial_data(), get_net(
+    strategy = KMeansSampling(x_train, y_train, label_initial_data(), get_classifier(
         DATASET), get_handler(DATASET), ARGS_POOL[DATASET])
     result.append(main_function(strategy, label_initial_data()))
 

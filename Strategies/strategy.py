@@ -6,22 +6,22 @@ from torch.utils.data import DataLoader
 
 
 class Strategy:
-    def __init__(self, X, Y, idxs_lb, net, handler, args):
-        self.X = X
-        self.Y = Y
-        self.idxs_lb = idxs_lb
-        self.net = net
+    def __init__(self, x_train, y_train, idxs_labeled, classifier, handler, args):
+        self.x_train = x_train
+        self.y_train = y_train
+        self.idxs_labeled = idxs_labeled
+        self.classifier = classifier
         self.handler = handler
         self.args = args
-        self.n_pool = len(Y)
+        self.n_pool = len(y_train)
         use_cuda = torch.cuda.is_available()
         self.device = torch.device("cuda" if use_cuda else "cpu")
 
     def query(self, n):
         pass
 
-    def update(self, idxs_lb):
-        self.idxs_lb = idxs_lb
+    def update(self, idxs_labeled):
+        self.idxs_labeled = idxs_labeled
 
     def _train(self, epoch, loader_tr, optimizer):
         self.clf.train()
@@ -35,20 +35,20 @@ class Strategy:
 
     def train(self):
         n_epoch = self.args['n_epoch']
-        self.clf = self.net().to(self.device)
+        self.clf = self.classifier().to(self.device)
         optimizer = optim.SGD(self.clf.parameters(), **
                               self.args['optimizer_args'])
-        idxs_train = np.arange(self.n_pool)[self.idxs_lb]
+        idxs_train = np.arange(self.n_pool)[self.idxs_labeled]
         loader_tr = DataLoader(self.handler(
-            self.X[idxs_train], self.Y[idxs_train], transform=self.args['transform']), shuffle=True, **self.args['loader_tr_args'])
+            self.x_train[idxs_train], self.y_train[idxs_train], transform=self.args['transform']), shuffle=True, **self.args['loader_tr_args'])
         for epoch in range(1, n_epoch+1):
             self._train(epoch, loader_tr, optimizer)
 
-    def predict(self, X, Y):
-        loader_te = DataLoader(self.handler(X, Y, transform=self.args['transform']),
+    def predict(self, x_train, y_train):
+        loader_te = DataLoader(self.handler(x_train, y_train, transform=self.args['transform']),
                                shuffle=False, **self.args['loader_te_args'])
         self.clf.eval()
-        P = torch.zeros(len(Y), dtype=Y.dtype)
+        P = torch.zeros(len(y_train), dtype=y_train.dtype)
         with torch.no_grad():
             for x, y, idxs in loader_te:
                 x, y = x.to(self.device), y.to(self.device)
@@ -58,11 +58,11 @@ class Strategy:
 
         return P
 
-    def predict_prob(self, X, Y):
-        loader_te = DataLoader(self.handler(X, Y, transform=self.args['transform']),
+    def predict_prob(self, x_train, y_train):
+        loader_te = DataLoader(self.handler(x_train, y_train, transform=self.args['transform']),
                                shuffle=False, **self.args['loader_te_args'])
         self.clf.eval()
-        probs = torch.zeros([len(Y), len(np.unique(Y))])
+        probs = torch.zeros([len(y_train), len(np.unique(y_train))])
         with torch.no_grad():
             for x, y, idxs in loader_te:
                 x, y = x.to(self.device), y.to(self.device)

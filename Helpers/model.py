@@ -2,7 +2,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
-def get_net(name):
+def get_classifier(name):
     if name == 'MNIST':
         return Net1
     elif name == 'FashionMNIST':
