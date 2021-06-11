@@ -78,11 +78,14 @@ if __name__ == '__main__':
 
     # ======= Initialisation
     n_pool = len(y_train)
-    print("\nDataSet : " + DATASET)
-    print('\tNombre de pool étiqueté: {}'.format(NB_INITIAL_ETIQUITE))
-    print('\tNombre de pool non étiqueté: {}'.format(
+    print("\nDATASET ==> " + DATASET)
+    print('\nNombre de pool étiqueté: {}'.format(NB_INITIAL_ETIQUITE))
+    print('Nombre de pool non étiqueté: {}'.format(
         n_pool - NB_INITIAL_ETIQUITE))
-    print('\tNombre de pool de test: {}'.format(len(y_test)))
+    print('Nombre de pool de test: {}'.format(len(y_test)))
+    print('Nombre de Query: {}'.format(NB_QUERY))
+    print("\n---------------Using " + "CUDA GPU ---------------" if torch.cuda.is_available()
+          else "CPU ---------------")
 
     # ========= RandomSampling
     strategy = RandomSampling(x_train, y_train, label_initial_data(), get_classifier(

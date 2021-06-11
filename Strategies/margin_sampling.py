@@ -7,6 +7,7 @@ class MarginSampling(Strategy):
         super(MarginSampling, self).__init__(
             x_train, y_train, idxs_labeled, net, handler, args)
 
+    # ======== Selectionner les point avec la probabilté la plus elevée
     def query(self, n):
         idxs_unlabeled = np.arange(self.n_pool)[~self.idxs_labeled]
         probs = self.predict_prob(
