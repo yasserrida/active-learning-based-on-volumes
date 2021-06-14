@@ -57,11 +57,11 @@ class Strategie:
         # ========== paralléliser le processus de chargement des données avec le batching automatique
         loader_te = DataLoader(self.handler(
             x_train, y_train, transform=self.args['transform']), shuffle=False, ** self.args['loader_te_args'])
-        # ========== Met le module en mode évaluation.
+        # ========== Met le modele en mode évaluation.
         self.clf.eval()
         # ========== Initialiser avec des zéros
         P = torch.zeros(len(y_train), dtype=y_train.dtype)
-        # ========== Gestionnaire de contexte qui a désactivé le calcul du gradient
+        # ========== désactivé le calcul du gradient
         with torch.no_grad():
             for x, y, idxs in loader_te:
                 x, y = x.to(self.device), y.to(self.device)
@@ -75,11 +75,11 @@ class Strategie:
         # ========== paralléliser le processus de chargement des données avec le batching automatique
         loader_te = DataLoader(self.handler(
             x_train, y_train, transform=self.args['transform']), shuffle=False, ** self.args['loader_te_args'])
-        # ========== Met le module en mode évaluation.
+        # ========== Met le modele en mode évaluation.
         self.clf.eval()
         # ========== Initialiser avec des zéros
         probs = torch.zeros([len(y_train), len(np.unique(y_train))])
-        # ========== Gestionnaire de contexte qui a désactivé le calcul du gradient
+        # ========== désactivé le calcul du gradient
         with torch.no_grad():
             for x, y, idxs in loader_te:
                 x, y = x.to(self.device), y.to(self.device)
@@ -101,7 +101,7 @@ class Strategie:
         with torch.no_grad():
             for x, y, idxs in loader_te:
                 x, y = x.to(self.device), y.to(self.device)
-                # ======== encastrement
+                # ======== lookup table
                 out, e1 = self.clf(x)
                 embedding[idxs] = e1.cpu()
         return embedding
