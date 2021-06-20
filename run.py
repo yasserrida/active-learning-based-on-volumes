@@ -77,15 +77,19 @@ if __name__ == '__main__':
     y_train = y_train[:40000]
 
     # ======= Initialisation
+    print("\n-------------------- Using " + "CUDA GPU -------------------------" if torch.cuda.is_available()
+          else "CPU ---------------")
     n_pool = len(y_train)
     print("\nDATASET ==> " + DATASET)
     print('\nNombre de pool étiqueté: {}'.format(NB_INITIAL_ETIQUITE))
-    print('Nombre de pool non étiqueté: {}'.format(
-        n_pool - NB_INITIAL_ETIQUITE))
+    print('Nombre de pool non étiqueté: {}'.format(n_pool - NB_INITIAL_ETIQUITE))
     print('Nombre de pool de test: {}'.format(len(y_test)))
     print('Nombre de Query: {}'.format(NB_QUERY))
-    print("\n---------------Using " + "CUDA GPU ---------------" if torch.cuda.is_available()
-          else "CPU ---------------")
+
+    # ========= VAL
+    strategy = VAL(x_train, y_train, label_initial_data(), get_classifier(
+        DATASET), get_handler(DATASET), ARGS_POOL[DATASET])
+    result.append(main_function(strategy, label_initial_data()))
 
     # ========= RandomSampling
     strategy = RandomSampling(x_train, y_train, label_initial_data(), get_classifier(
@@ -98,12 +102,12 @@ if __name__ == '__main__':
     result.append(main_function(strategy, label_initial_data()))
 
     # ========= KMeansSampling
-    strategy = KMeansSampling(x_train, y_train, label_initial_data(), get_classifier(
-        DATASET), get_handler(DATASET), ARGS_POOL[DATASET])
+    strategy = KMeansSampling(x_train, y_train, label_initial_data(
+    ), get_classifier(DATASET), get_handler(DATASET), ARGS_POOL[DATASET])
     result.append(main_function(strategy, label_initial_data()))
 
-    labels = ['Échantillonnage aléatoire', 'Échantillonnage de marge',
-              'Échantillonnage K-means', 'Échantillonnage VAL']
+    labels = ['Échantillonnage VAL', 'Échantillonnage aléatoire', 'Échantillonnage de marge',
+              'Échantillonnage K-means']
     colors = ['blue', 'red', 'green', 'pink', 'black', 'orange']
     for i in range(0, len(result)):
         plt.plot(range(0, len(result[i])), result[i], color=colors[i],

@@ -12,6 +12,6 @@ class VAL(Strategie):
     def query(self, n):
         idxs_unlabeled = np.arange(self.n_pool)[~self.idxs_labeled]
         probs = self.predict_prob(
-            self.X[idxs_unlabeled], self.Y[idxs_unlabeled])
+            self.x_train[idxs_unlabeled], self.y_train[idxs_unlabeled])
         U = probs.max(1)[0]
         return idxs_unlabeled[U.sort()[1][:n]]

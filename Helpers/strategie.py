@@ -44,7 +44,7 @@ class Strategie:
         # ========== Stochastic Gradient Descent Optimizer
         optimizer = optim.SGD(self.clf.parameters(), **
                               self.args['optimizer_args'])
-        # ========== Index de train
+        # ========== Indexs de train
         idxs_train = np.arange(self.n_pool)[self.idxs_labeled]
         # ========== paralléliser le processus de chargement des données avec le batching automatique
         loader_tr = DataLoader(self.handler(self.x_train[idxs_train], self.y_train[idxs_train],
