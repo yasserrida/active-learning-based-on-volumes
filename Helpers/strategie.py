@@ -24,13 +24,13 @@ class Strategie:
         self.idxs_labeled = idxs_labeled
 
     def _train(self, loader_tr, optimizer):
-        self.clf.train()
+        self.classifier.train()
         # ========== Boucler par le nombre de batch
         for batch_idx, (x, y, idxs) in enumerate(loader_tr):
             x, y = x.to(self.device), y.to(self.device)
             # ========== mettre les gradients à zéro
             optimizer.zero_grad()
-            out, e1 = self.clf(x)
+            out, e1 = self.classifier(x)
             # ========== Définir la fonction de perte
             loss = F.cross_entropy(out, y)
             # ========== accumule les gradients
@@ -40,9 +40,9 @@ class Strategie:
 
     def train(self):
         n_epoch = self.args['n_epoch']
-        self.clf = self.classifier().to(self.device)
+        self.classifier = self.classifier().to(self.device)
         # ========== Stochastic Gradient Descent Optimizer
-        optimizer = optim.SGD(self.clf.parameters(), **
+        optimizer = optim.SGD(self.classifier.parameters(), **
                               self.args['optimizer_args'])
         # ========== Indexs de train
         idxs_train = np.arange(self.n_pool)[self.idxs_labeled]
@@ -58,14 +58,14 @@ class Strategie:
         loader_te = DataLoader(self.handler(
             x_train, y_train, transform=self.args['transform']), shuffle=False, ** self.args['loader_te_args'])
         # ========== Met le modele en mode évaluation.
-        self.clf.eval()
+        self.classifier.eval()
         # ========== Initialiser avec des zéros
         P = torch.zeros(len(y_train), dtype=y_train.dtype)
         # ========== désactivé le calcul du gradient
         with torch.no_grad():
             for x, y, idxs in loader_te:
                 x, y = x.to(self.device), y.to(self.device)
-                out, e1 = self.clf(x)
+                out, e1 = self.classifier(x)
                 # ====== la valeur maximale de tous les éléments
                 pred = out.max(1)[1]
                 P[idxs] = pred.cpu()
@@ -76,14 +76,14 @@ class Strategie:
         loader_te = DataLoader(self.handler(
             x_train, y_train, transform=self.args['transform']), shuffle=False, ** self.args['loader_te_args'])
         # ========== Met le modele en mode évaluation.
-        self.clf.eval()
+        self.classifier.eval()
         # ========== Initialiser avec des zéros
         probs = torch.zeros([len(y_train), len(np.unique(y_train))])
         # ========== désactivé le calcul du gradient
         with torch.no_grad():
             for x, y, idxs in loader_te:
                 x, y = x.to(self.device), y.to(self.device)
-                out, e1 = self.clf(x)
+                out, e1 = self.classifier(x)
                 # ====== Applique la fonction Softmax
                 prob = F.softmax(out, dim=1)
                 probs[idxs] = prob.cpu()
@@ -94,14 +94,14 @@ class Strategie:
         loader_te = DataLoader(self.handler(X, Y, transform=self.args['transform']),
                                shuffle=False, **self.args['loader_te_args'])
         # ========== Met le module en mode évaluation.
-        self.clf.eval()
+        self.classifier.eval()
         # ========== Initialiser avec des zéros
-        embedding = torch.zeros([len(Y), self.clf.get_embedding_dim()])
+        embedding = torch.zeros([len(Y), self.classifier.get_embedding_dim()])
         # ========== Gestionnaire de contexte qui a désactivé le calcul du gradient.
         with torch.no_grad():
             for x, y, idxs in loader_te:
                 x, y = x.to(self.device), y.to(self.device)
                 # ======== lookup table
-                out, e1 = self.clf(x)
+                out, e1 = self.classifier(x)
                 embedding[idxs] = e1.cpu()
         return embedding

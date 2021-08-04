@@ -5,6 +5,12 @@ from torchvision import transforms
 import numpy as np
 import matplotlib.pyplot as plt
 import torch
+import sys
+import warnings
+
+if not sys.warnoptions:
+    warnings.simplefilter("ignore")
+
 
 NB_INITIAL_ETIQUITE = 1000
 NB_QUERY = 500
@@ -83,7 +89,6 @@ if __name__ == '__main__':
     print("\nDATASET ==> " + DATASET)
     print('\nNombre de pool étiqueté: {}'.format(NB_INITIAL_ETIQUITE))
     print('Nombre de pool non étiqueté: {}'.format(n_pool - NB_INITIAL_ETIQUITE))
-    print('Nombre de pool de test: {}'.format(len(y_test)))
     print('Nombre de Query: {}'.format(NB_QUERY))
 
     # ========= VAL
@@ -102,9 +107,8 @@ if __name__ == '__main__':
     result.append(main_function(strategy, label_initial_data()))
 
     # ========= KMeansSampling
-    strategy = KMeansSampling(x_train, y_train, label_initial_data(
-    ), get_classifier(DATASET), get_handler(DATASET), ARGS_POOL[DATASET])
-    result.append(main_function(strategy, label_initial_data()))
+    #strategy = KMeansSampling(x_train, y_train, label_initial_data(), get_classifier(DATASET), get_handler(DATASET), ARGS_POOL[DATASET])
+    #result.append(main_function(strategy, label_initial_data()))
 
     labels = ['Échantillonnage VAL', 'Échantillonnage aléatoire', 'Échantillonnage de marge',
               'Échantillonnage K-means']
