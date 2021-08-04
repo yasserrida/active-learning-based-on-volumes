@@ -8,8 +8,11 @@ Author: RIDA Yasser
 
 ```bash
 $ pip3 install numpy
-
 $ pip3 install matplotlib
-
 $ pip3 install pytorch
+```
+
+### Run script
+```bash
+python3 run.py
 ```
