@@ -24,7 +24,7 @@ def get_dataset_local():
     return x_train, y_train
 
 
-def label_initial_data():
+def label_initial_data(n_pool):
     idxs_labeled = np.zeros(n_pool, dtype=bool)
     index_temp = np.arange(n_pool)
     np.random.shuffle(index_temp)
@@ -41,7 +41,7 @@ def get_kernel_matrix(x_train, y_train, handler):
 if __name__ == '__main__':
     # -------------------- Init
     x_train, y_train = get_dataset_local()
-    idxs_labeled = label_initial_data()
+    idxs_labeled = label_initial_data(len(y_train))
     handler = get_handler(DATASET)
     classifier = get_classifier(DATASET)
     classifier.eval()
